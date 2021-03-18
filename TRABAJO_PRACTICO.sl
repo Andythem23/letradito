@@ -225,7 +225,7 @@ celda,aux:punto
 			}
 			pop()
 			desde i=1 hasta 4 {
-				si (es_Seguro (ubi.x+posicionesx[i],ubi.y+posicionesy[i])) {
+				si (es_Seguro (celda.x+posicionesx[i],celda.y+posicionesy[i])) {
 					
 					aux.x=celda.x+posicionesx[i]
 					aux.y=celda.y+posicionesy[i]
@@ -237,7 +237,7 @@ celda,aux:punto
 		retorna celda
 	fin
 
-subrutina es_Seguro (fil:numerico;col:numerico) retorna logico
+subrutina es_Seguro (fil,col:numerico) retorna logico
 var
 res: logico
 inicio
