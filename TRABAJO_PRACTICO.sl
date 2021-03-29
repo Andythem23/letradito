@@ -11,13 +11,26 @@ Integrantes:
 	4) Samaniego Muñoz, Mijhael Andrés
 
 */
+tipos
+punto: registro 
+			{
+				x:numerico
+				y:numerico
+			}
 var
 
+	fila: registro {
+							frente,trasero:numerico
+							array:vector [50] punto
+						}
+
 	ALFABETO : matriz [ *, * ] cadena
+
+	ALFABETO_Visitado : matriz [ *, * ] logico
 	
 	M, N : numerico
 	
-	Eme, Ene, Pasos, Res_M, Res_N: numerico
+	Prueba,Resultado:punto
 	
 	Porcentaje_P, Porcentaje_Vocales, Porcentaje_Consonantes : numerico
 	
@@ -27,6 +40,9 @@ var
 	
 	Abecedario : vector [ 27 ] cadena
 
+	posicionesx : vector [4] numerico
+
+	posicionesy : vector [4] numerico
 inicio
 
 	cls()
@@ -37,7 +53,11 @@ inicio
 
 	Abecedario = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }
 
-	imprimir( "\nESTE PROGRAMA SE COME PARALABRAS DE UNA MATRIZ\n" )
+	posicionesx = { -1, 0, 1, 0 }
+	
+	posicionesy = { 0, 1, 0, -1 }
+
+	imprimir( "\nESTE PROGRAMA SE COME PALABRAS DE UNA MATRIZ\n" )
 
 	repetir
 		
@@ -75,6 +95,8 @@ inicio
 	
 	dim ( ALFABETO, M, N )
 
+	dim ( ALFABETO_Visitado, M, N )
+
 	cargar_matriz( ALFABETO )
 	
 	imprimir_matriz( )
@@ -83,17 +105,16 @@ inicio
 
 	imprimir("\n\nIngrese la fila: ")
 
-	leer( Eme )
+	leer( Prueba.x )
 	
 	imprimir("\nIngrese la columna: ")
 
-	leer( Ene )
+	leer( Prueba.y )
+	
+	Resultado=buscar_P_cercana( Prueba )
 
-	buscar_P_cercana( Eme, Ene )
+	imprimir( "\n\nLa P más cercana esta en: fila = ", Resultado.x, " columna = ", Resultado.y)
 
-	imprimir( "\n\nLa P más cercana esta en: fila = ", Res_M, " columna = ", Res_N )
-
-	imprimir("\nA ", Pasos, " pasos de distancia de la letra ", ALFABETO[ Eme ][ Ene ] )
 
 fin
 
@@ -190,36 +211,69 @@ subrutina imprimir_matriz(  )
 		
 	fin
 
-subrutina buscar_P_cercana( Ubi_M : numerico; Ubi_N : numerico)
-	var
-		
-		i, j : numerico
-		
+subrutina buscar_P_cercana( ubi:punto)  retorna punto
+var
+i:numerico
+celda,aux:punto
 	inicio
-		
-		Pasos = 999
-		
-		desde i = 1 hasta M {
-			
-			desde j = 1 hasta N {
-				
-				//La línea de abajo es super interesante, acá averiguo a cuantos pasos está una letra respecto a una ubicación... la suma "abs( Eme - i ) + abs( Ene - j )" indica la distacia en pasos desde la ubicación dada
-				
-				si( ALFABETO[ i ][ j ] == "P" and ( abs( Eme - i ) + abs( Ene - j ) ) < Pasos ){ 
-					
-					Pasos = abs( Eme - i ) + abs( Ene - j )
-					
-					Res_M = i
-					
-					Res_N = j
-					
-				}
-				
+		ALFABETO_Visitado[ ubi.x,ubi.y ] = SI
+		insertar(ubi)
+		mientras (!vacio()) {
+			celda=fila.array[fila.frente]
+			si (ALFABETO[celda.x,celda.y]=="P"){
+				salir
 			}
-			
+			pop()
+			desde i=1 hasta 4 {
+				si (es_Seguro (celda.x+posicionesx[i],celda.y+posicionesy[i])) {
+					
+					aux.x=celda.x+posicionesx[i]
+					aux.y=celda.y+posicionesy[i]
+					insertar (aux)
+					ALFABETO_Visitado[ aux.x,aux.y ] = SI
+				}
+			}
 		}
-		
+		retorna celda
 	fin
 
+subrutina es_Seguro (fil,col:numerico) retorna logico
+var
+res: logico
+inicio
+		si ((fil >= 1) && (fil <= M) && (col >= 1) && (col <= N) && (!ALFABETO_Visitado[fil,col])) {
+			res=SI
+		sino 
+			res=NO
+		}
+		retorna res
+fin
 
+subrutina insertar (valor:punto)
+inicio
+		si (fila.frente==0) {
+			fila.frente=1
+		}
+		inc (fila.trasero)
+		fila.array[fila.trasero]=valor
+fin
+subrutina pop ()
+inicio
+		inc (fila.frente)
+		si (fila.frente>fila.trasero) {
+			fila.frente=0
+			fila.trasero=0
+		}
+fin	
+subrutina vacio() retorna logico
+var
+res:logico
+inicio
+		si (fila.frente==0 && fila.trasero==0) {
+			res=SI
+		sino
+			res=NO
+		}
+		retorna res
+fin
 
